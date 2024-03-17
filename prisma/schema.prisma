@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// this schema is for testing t3
+model Post {
+    id        Int      @id @default(autoincrement())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([name])
+}
+
+
+
+// Updated Schema for project
+
+// model User {
+//   id        Int      @id @default(autoincrement())
+//   email     String   @unique
+//   name      String?
+
+//   // Relationship with Tasks (one user can have many tasks)
+//   tasks     Task[]  
+//   projects  Project[]  
+// }
+
+// model Task {
+//   id          Int      @id @default(autoincrement())
+//   title       String
+//   description String?
+//   deadline    DateTime?
+//   priority    String?  // (e.g., High, Medium, Low)
+//   status      String   // (e.g., To Do, In Progress, Done)
+//   completed   Boolean  @default(false)
+
+//   // Relationship with User (one task belongs to one user)
+//   userId     Int
+//   user       User     @relation(fields: [userId], references: [id])
+
+//   // Relationship with Project (one task can belong to one project)
+//   projectId  Int?
+//   project    Project? @relation(fields: [projectId], references: [id])
+
+//   // Relationship with Tags (many tasks can have many tags)
+//   tags       Tag[]     @relation("TaskTag")
+// }
+
+// model Tag {
+//   id          Int      @id @default(autoincrement())
+//   name        String   @unique
+//   description String?
+
+//   // Relationship with Tasks (many tags can belong to many tasks)
+//   tasks       Task[]   @relation("TaskTag")
+// }
+
+// model Project {
+//   id          Int      @id @default(autoincrement())
+//   name        String
+//   description String?
+
+//   // Relationship with User (one project belongs to one owner)
+//   ownerId     Int
+//   owner       User     @relation(fields: [ownerId], references: [id])
+
+//   // Relationship with Tasks (one project can have many tasks)
+//   tasks       Task[] 
+// }
