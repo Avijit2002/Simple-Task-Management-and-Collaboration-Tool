@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -12,68 +12,55 @@ datasource db {
 }
 
 // this schema is for testing t3
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+// model Post {
+//     id        Int      @id @default(autoincrement())
+//     name      String
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
 
-    @@index([name])
-}
-
-
+//     @@index([name])
+// }
 
 // Updated Schema for project
 
-// model User {
-//   id        Int      @id @default(autoincrement())
-//   email     String   @unique
-//   name      String?
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String?
+  password String
 
-//   // Relationship with Tasks (one user can have many tasks)
-//   tasks     Task[]  
-//   projects  Project[]  
-// }
+  // Relationship with Tasks (one user can have many tasks)
+  tasks Task[]
 
-// model Task {
-//   id          Int      @id @default(autoincrement())
-//   title       String
-//   description String?
-//   deadline    DateTime?
-//   priority    String?  // (e.g., High, Medium, Low)
-//   status      String   // (e.g., To Do, In Progress, Done)
-//   completed   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-//   // Relationship with User (one task belongs to one user)
-//   userId     Int
-//   user       User     @relation(fields: [userId], references: [id])
+model Task {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  deadline    DateTime?
+  priority    String? // (e.g., High, Medium, Low)
+  status      String // (e.g., To Do, In Progress, Done)
+  completed   Boolean   @default(false)
 
-//   // Relationship with Project (one task can belong to one project)
-//   projectId  Int?
-//   project    Project? @relation(fields: [projectId], references: [id])
+  // Relationship with User (one task belongs to one user)
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
-//   // Relationship with Tags (many tasks can have many tags)
-//   tags       Tag[]     @relation("TaskTag")
-// }
+  // Relationship with Tags (many tasks can have many tags)
+  tags Tag[] @relation("TaskTag")
 
-// model Tag {
-//   id          Int      @id @default(autoincrement())
-//   name        String   @unique
-//   description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-//   // Relationship with Tasks (many tags can belong to many tasks)
-//   tasks       Task[]   @relation("TaskTag")
-// }
+model Tag {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
 
-// model Project {
-//   id          Int      @id @default(autoincrement())
-//   name        String
-//   description String?
-
-//   // Relationship with User (one project belongs to one owner)
-//   ownerId     Int
-//   owner       User     @relation(fields: [ownerId], references: [id])
-
-//   // Relationship with Tasks (one project can have many tasks)
-//   tasks       Task[] 
-// }
+  // Relationship with Tasks (many tags can belong to many tasks)
+  tasks Task[] @relation("TaskTag")
+}
