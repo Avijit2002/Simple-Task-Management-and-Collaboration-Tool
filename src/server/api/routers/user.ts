@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
 
 import { signIn } from "next-auth/react";
+import { zodSignup } from "~/zod";
 
 import { hash } from "argon2";
 
@@ -9,12 +9,9 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
     signup: publicProcedure
-        .input(z.object({
-            email: z.string().trim().email("This is not a valid email.").transform((val) => val?.toUpperCase()),
-            password: z.string().trim().min(6, { message: "Must be 6 or more characters long" }),
-        }))
+        .input(zodSignup)
         .mutation(async ({ ctx, input }) => {
-
+            console.log(input)
             const { email, password } = input
 
             const exists = await ctx.db.user.findUnique({
