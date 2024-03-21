@@ -1,16 +1,11 @@
-"use client"
+import { getServerAuthSession } from "~/server/auth"
 
-import { useSession } from "next-auth/react"
 
-function page() {
-
-    const { data: session, status } = useSession()
-
-    if (status === "authenticated") {
-      return <p>Signed in as {session.user.email}</p>
-    }
+async function page() {
+  const session =await getServerAuthSession()
+   console.log(session)
   
-    return <p>Not authenticated</p>
+    return <p>Dashboard</p>
    
 }
 

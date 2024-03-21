@@ -43,19 +43,41 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt"
+  },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    // session: ({ session, user }) => {
+    //   console.log(session,user)
+    //   return ({
+    //     ...session,
+    //     user: {
+    //       ...session.user,
+    //       id: user.id,
+    //     },
+    //   })
+    // },
+    // jwt: ({ token, user }) => ({
+    //   ...token,
+    //   user,
+    // }),
+
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      session.user.id = token.id as string
+      return session
+    }
   },
   adapter: PrismaAdapter(db) as Adapter,
-  pages:{
+  pages: {
     signIn: "/signin",
   },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
@@ -81,7 +103,7 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const result = await prisma.user.findUnique({
+        const result = await db.user.findUnique({
           where: {
             email: credentials.email,
           },
@@ -92,15 +114,19 @@ export const authOptions: NextAuthOptions = {
           }
         })
 
-        console.log(result)
+        //console.log(result)
 
-        if(!result){
+        if (!result) {
           return null
         }
         //const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
+        const isVerified = await verify(result?.password, credentials.password)
 
-        if (await verify(result?.password,credentials.password)) {
+        //console.log(isVerified)
+
+        if (isVerified) {
           // Any object returned will be saved in `user` property of the JWT
+          //console.log(isVerified)
 
           // user object must contain id as string but in db schema id is number
           const user: { id: string, email: string } = {
