@@ -24,7 +24,7 @@ export const taskRouter = createTRPCRouter({
                     message: 'Status must be "To Do", "In Progress", or "Done"',
                 }),
             completed: z.boolean().optional(),
-            userId: z.number(),
+            userId: z.string(),
         }))
         .mutation(async ({ ctx, input }) => {
 
@@ -64,7 +64,7 @@ export const taskRouter = createTRPCRouter({
 
     update: publicProcedure
         .input(z.object({
-            id: z.number().min(1, 'Task id is required to update the task'),
+            id: z.string().min(1, 'Task id is required to update the task'),
             title: z.string().trim().min(1, 'Title is required and cannot be empty').optional(),
             description: z.string().optional().nullable(),
             deadline: z.date().optional().nullable(),
@@ -84,7 +84,7 @@ export const taskRouter = createTRPCRouter({
                     message: 'Status must be "To Do", "In Progress", or "Done"',
                 }),
             completed: z.boolean().optional(),
-            userId: z.number().optional(),
+            userId: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
 
@@ -121,7 +121,7 @@ export const taskRouter = createTRPCRouter({
 
         delete: publicProcedure
         .input(z.object({
-            id: z.number().min(1, 'Task id is required to update the task'),
+            id: z.string().min(1, 'Task id is required to update the task'),
         }))
         .mutation(async ({ ctx, input }) => {
 

@@ -35,8 +35,12 @@ function SigninForm() {
   async function onSubmit(values: typeSignup) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-     signIn();
-
+     const res = await signIn('credentials',{
+        email: values.email,
+        password: values.password,
+        callbackUrl:"http://localhost:3000/dashboard"
+     });
+     console.log(res)
   }
 
   return (
@@ -87,13 +91,13 @@ function SigninForm() {
               </FormItem>
             )}
           />
-          <Button size={"lg"} type="submit">
+          <Button variant={"default"} size={"lg"} type="submit">
             Submit
           </Button>
         </form>
         <h3 className="my-4 text-center text-lg">
           New here?
-          <Link className="ml-2" href="http://localhost:3000/api/auth/signup">
+          <Link className="ml-2" href="http://localhost:3000/signup">
             Sign up
           </Link>
         </h3>

@@ -22,6 +22,7 @@ import {
 import { Input } from "../../components/ui/input";
 import { useEffect } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 function SignForm() {
   const form = useForm<typeSignup>({
@@ -36,7 +37,7 @@ function SignForm() {
     api.user.signup.useMutation();
 
   useEffect(() => {
-    function triggerNotification() {
+    async function triggerNotification() {
       isError &&
         toast.error(error.message, {
           position: "top-center",
@@ -45,6 +46,15 @@ function SignForm() {
         toast.success(data.message, {
           position: "top-center",
         });
+
+        // if(isSuccess){
+        //   const res = await signIn('credentials',{
+        //     email: data.email,
+        //     password: values.password,
+        //     redirect:false
+        //  });
+        //  console.log(res)
+        // }
     }
     triggerNotification();
   }, [isError, isSuccess]);
@@ -105,13 +115,13 @@ function SignForm() {
               </FormItem>
             )}
           />
-          <Button size={"lg"} type="submit">
+          <Button variant={"default"} size={"lg"} type="submit">
             Submit
           </Button>
         </form>
         <h3 className="my-4 text-center text-lg">
           Already Registered?
-          <Link className="ml-2" href="http://localhost:3000/api/auth/signin">
+          <Link className="ml-2" href="http://localhost:3000/signin">
             Login
           </Link>
         </h3>
