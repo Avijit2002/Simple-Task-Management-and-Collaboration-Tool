@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { signIn } from "next-auth/react";
 import { zodSignup } from "~/zod";
 
+
 import { hash } from "argon2";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -13,6 +14,10 @@ export const userRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             console.log(input)
             const { email, password } = input
+
+            // const users:object[] = await ctx.db.$queryRaw`SELECT * FROM User;`
+            // console.log(users[0])
+
 
             const exists = await ctx.db.user.findUnique({
                 where: {
@@ -25,6 +30,8 @@ export const userRouter = createTRPCRouter({
                     message: 'This email is already registered.',
                 });
             }
+
+
 
             const hashedPassword = await hash(password);
 
@@ -39,7 +46,7 @@ export const userRouter = createTRPCRouter({
             };
         }),
 
-    
+
 
     // signin: publicProcedure
     //     .input(z.object({
@@ -59,7 +66,7 @@ export const userRouter = createTRPCRouter({
     //                 message: 'Error Signing in...',
     //             });
     //         }
-            
+
     //         return {
     //             status: 201,
     //             message: "Signin success successfully",

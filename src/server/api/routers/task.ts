@@ -2,39 +2,23 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { zodTaskCreate } from "~/zod";
 
 export const taskRouter = createTRPCRouter({
     create: publicProcedure
-        .input(z.object({
-            title: z.string().trim().min(1, 'Title is required and cannot be empty'),
-            description: z.string().optional().nullable(),
-            deadline: z.date().optional().nullable(),
-            priority: z
-                .string()
-                .optional()
-                .nullable()
-                .transform((val) => val?.toUpperCase())
-                .refine((val) => ['HIGH', 'MEDIUM', 'LOW'].includes(val ?? ''), {
-                    message: 'Priority must be "High", "Medium", or "Low"',
-                }),
-            status: z
-                .string()
-                .transform((val) => val?.toUpperCase())
-                .refine((val) => ['TO DO', 'IN PROGRESS', 'DONE'].includes(val ?? ''), {
-                    message: 'Status must be "To Do", "In Progress", or "Done"',
-                }),
-            completed: z.boolean().optional(),
-            userId: z.string(),
-        }))
+        .input(zodTaskCreate)
         .mutation(async ({ ctx, input }) => {
+
+            console.log(input)
 
             const user = await ctx.db.user.findUnique({
                 where: {
                     id: input.userId
                 }
             })
+            //console.log(user)
 
-            if (user?.id) {
+            if (!user?.id) {
                 throw new TRPCError({
                     code: 'FORBIDDEN',
                     message: 'User not found.',
@@ -42,7 +26,19 @@ export const taskRouter = createTRPCRouter({
             }
 
             const createdTask = await ctx.db.task.create({
-                data: input
+                data: {
+                    title: input.title,
+                    description: input.description,
+                    deadline: input.deadline,
+                    priority: input.priority,
+                    status: input.status,
+                    completed: input.completed,
+                    users: {
+                        "connect": {
+                            id: input.userId
+                        }
+                    }
+                }
             })
 
             return {
@@ -53,13 +49,29 @@ export const taskRouter = createTRPCRouter({
         }),
 
 
-    read: publicProcedure.query(async({ ctx }) => {
-        const tasks = await ctx.db.task.findMany()
-        return {
-            status: 201,
-            result: tasks,
-        }; 
-    }),
+    read: publicProcedure
+        .input(
+            z.object({
+                userId: z.string().min(1)
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+
+            const tasks = await ctx.db.user.findUnique({
+                where: {
+                    id: input.userId
+                },
+                select: {
+                    tasks: true
+                }
+            })
+
+            console.log(tasks)
+            return {
+                status: 201,
+                result: tasks,
+            };
+        }),
 
 
     update: publicProcedure
@@ -117,9 +129,9 @@ export const taskRouter = createTRPCRouter({
                 result: createdTask,
             };
         }),
-        
 
-        delete: publicProcedure
+
+    delete: publicProcedure
         .input(z.object({
             id: z.string().min(1, 'Task id is required to update the task'),
         }))

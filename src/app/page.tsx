@@ -11,7 +11,7 @@ export default function Home() {
 
   const router = useRouter()
 
-  if(session.status=="unauthenticated"){
+  if(session.status=="authenticated"){
     router.push("/dashboard")
   }
   

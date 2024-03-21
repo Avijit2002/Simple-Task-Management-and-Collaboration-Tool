@@ -21,8 +21,12 @@ import { Input } from "../../components/ui/input";
 import { useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function SigninForm() {
+
+  const router = useRouter()
+  
   const form = useForm<typeSignup>({
     resolver: zodResolver(zodSignup),
     defaultValues: {
@@ -35,12 +39,26 @@ function SigninForm() {
   async function onSubmit(values: typeSignup) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-     const res = await signIn('credentials',{
+    try {
+      const res = await signIn('credentials',{
         email: values.email,
         password: values.password,
-        callbackUrl:"http://localhost:3000/dashboard"
+        // callbackUrl:"/dashboard"
+        redirect: false
      });
      console.log(res)
+     if(!res?.ok){
+      toast.error("Login Failed!", {
+        position: "top-center",
+      });
+     }else{
+      router.push("/dashboard")
+     }
+      
+    } catch (error) {
+      console.log(error)
+    }
+     
   }
 
   return (

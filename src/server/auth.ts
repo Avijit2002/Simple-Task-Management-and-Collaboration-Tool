@@ -136,6 +136,7 @@ export const authOptions: NextAuthOptions = {
           console.log(user)
           return user
         } else {
+          
           // If you return null then an error will be displayed advising the user to check their details.
           return null
 
