@@ -1,12 +1,23 @@
-import { getServerAuthSession } from "~/server/auth"
+"use client";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
+function page() {
+  const session = useSession();
+  console.log(session);
 
-async function page() {
-  const session =await getServerAuthSession()
-   console.log(session)
-  
-    return <p>Dashboard</p>
-   
+  const router = useRouter();
+
+  if (session.status == "unauthenticated") {
+    return router.push("/signin");
+  }
+
+  return (
+    <div>
+      <p>Dashboard</p>
+      <button onClick={() => signOut()}>Signout</button>
+    </div>
+  );
 }
 
-export default page
+export default page;

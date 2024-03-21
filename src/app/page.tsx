@@ -1,7 +1,20 @@
+"use client"
+
 import Link from "next/link";
 import LampDemo from "./_components/lampHeading";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-export default async function Home() {
+export default function Home() {
+  const session = useSession()
+  //console.log(session)
+
+  const router = useRouter()
+
+  if(session.status=="unauthenticated"){
+    router.push("/dashboard")
+  }
+  
   return (
     <main className="grid h-screen w-screen grid-cols-2">
       <div className="bg-purple-50 flex flex-col gap-5 justify-center text-center">
