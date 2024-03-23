@@ -18,35 +18,78 @@ export const userRouter = createTRPCRouter({
             // const users:object[] = await ctx.db.$queryRaw`SELECT * FROM User;`
             // console.log(users[0])
 
-
-            const exists = await ctx.db.user.findUnique({
-                where: {
-                    email
+            try {
+                const exists = await ctx.db.user.findUnique({
+                    where: {
+                        email
+                    }
+                })
+                if (exists?.id) {
+                    throw new TRPCError({
+                        code: 'FORBIDDEN',
+                        message: 'This email is already registered.',
+                    });
                 }
-            })
-            if (exists?.id) {
-                throw new TRPCError({
-                    code: 'FORBIDDEN',
-                    message: 'This email is already registered.',
+
+                const hashedPassword = await hash(password);
+
+                const result = await ctx.db.user.create({
+                    data: { email, password: hashedPassword },
                 });
+
+                return {
+                    status: 201,
+                    message: "Account created successfully",
+                    result: result.email,
+                };
+
+            } catch (error) {
+                if (!(error instanceof TRPCError)) {
+                    throw new TRPCError({
+                        code: 'FORBIDDEN',
+                        message: 'DB error.',
+                    });
+
+                } else {
+                    throw error
+                }
+
             }
 
 
-
-            const hashedPassword = await hash(password);
-
-            const result = await ctx.db.user.create({
-                data: { email, password: hashedPassword },
-            });
-
-            return {
-                status: 201,
-                message: "Account created successfully",
-                result: result.email,
-            };
         }),
 
+    searchuser: publicProcedure.input(String).mutation(async({ ctx, input }) => {
 
+        const data = await ctx.db.user.findMany({
+            where: {
+                OR: [
+                    {
+                        email: {
+                            startsWith: input,
+                            mode: 'insensitive'
+                        }
+                    },
+                    {
+                        name: {
+                            startsWith: input,
+                            mode: 'insensitive'
+                        }
+                    },
+                ]
+            },
+            select:{
+                email: true,
+                id: true,
+                name: true
+            }
+        })
+        return {
+            status: 200,
+            message: "users found",
+            result: data
+        };
+    })
 
     // signin: publicProcedure
     //     .input(z.object({

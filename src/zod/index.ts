@@ -8,7 +8,7 @@ export const zodSignup = z.object({
 export const zodTaskCreate = z.object({
     title: z.string().trim().min(1, 'Title is required and cannot be empty'),
     description: z.string().optional().nullable(),
-    deadline: z.date().optional().nullable(),
+    deadline: z.coerce.date().optional().nullable(),
     priority: z
         .string()
         .optional()
@@ -25,6 +25,7 @@ export const zodTaskCreate = z.object({
         }),
     completed: z.boolean().optional(),
     userId: z.string(),
+    teamUserId: z.string().optional()
 })
 
 export type typeSignup = z.infer<typeof zodSignup>

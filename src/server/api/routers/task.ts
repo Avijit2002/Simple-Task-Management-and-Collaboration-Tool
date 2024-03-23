@@ -10,36 +10,67 @@ export const taskRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
 
             console.log(input)
+            let createdTask
 
-            const user = await ctx.db.user.findUnique({
-                where: {
-                    id: input.userId
+            if(input.teamUserId){
+                const user = await ctx.db.user.findUnique({
+                    where: {
+                        id: input.teamUserId
+                    }
+                })
+                //console.log(user)
+    
+                if (!user?.id) {
+                    throw new TRPCError({
+                        code: 'FORBIDDEN',
+                        message: 'Teammate User not found.',
+                    });
                 }
-            })
-            //console.log(user)
 
-            if (!user?.id) {
-                throw new TRPCError({
-                    code: 'FORBIDDEN',
-                    message: 'User not found.',
-                });
-            }
-
-            const createdTask = await ctx.db.task.create({
-                data: {
-                    title: input.title,
-                    description: input.description,
-                    deadline: input.deadline,
-                    priority: input.priority,
-                    status: input.status,
-                    completed: input.completed,
-                    users: {
-                        "connect": {
-                            id: input.userId
+                createdTask = await ctx.db.task.create({
+                    data: {
+                        title: input.title,
+                        description: input.description,
+                        deadline: input.deadline,
+                        priority: input.priority,
+                        status: input.status,
+                        completed: input.completed,
+                        users: {
+                            connect: [
+                                {
+                                    id: input.userId
+                                },
+                                {
+                                    id: input.teamUserId
+                                }
+                            ]
                         }
                     }
-                }
-            })
+                })
+
+            }else{
+                createdTask = await ctx.db.task.create({
+                    data: {
+                        title: input.title,
+                        description: input.description,
+                        deadline: input.deadline,
+                        priority: input.priority,
+                        status: input.status,
+                        completed: input.completed,
+                        users: {
+                            connect: [
+                                {
+                                    id: input.userId
+                                }
+                            ]
+                        }
+                    }
+                })
+
+
+            }
+
+            
 
             return {
                 status: 201,
@@ -57,13 +88,24 @@ export const taskRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
 
-            const tasks = await ctx.db.user.findUnique({
+            const tasks = await ctx.db.task.findMany({
                 where: {
-                    id: input.userId
+                    users:{
+                        some: {
+                            id:{equals: input.userId}
+                        }
+                    }
                 },
-                select: {
-                    tasks: true
+                include:{
+                    users:{
+                        select:{
+                            id:true,
+                            email:true,
+                            name: true
+                        }
+                    }
                 }
+                
             })
 
             console.log(tasks)
@@ -132,14 +174,12 @@ export const taskRouter = createTRPCRouter({
 
 
     delete: publicProcedure
-        .input(z.object({
-            id: z.string().min(1, 'Task id is required to update the task'),
-        }))
+        .input(String)
         .mutation(async ({ ctx, input }) => {
 
             const result = await ctx.db.task.delete({
                 where: {
-                    id: input.id
+                    id: input
                 },
             })
 

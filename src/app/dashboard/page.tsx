@@ -1,21 +1,21 @@
 "use client";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Dialog } from "~/components/ui/dialog";
 import { api } from "~/trpc/react";
+import TaskForm from "../_components/taskCreateForm";
 
 function page() {
   const session = useSession();
   console.log(session);
 
-  const [isCreate, setIsCreate] = useState(false)
+  const [isCreate, setIsCreate] = useState(false);
+  const [fetch, setFetch] = useState(true);
 
-  const { mutate, data, error, isError, isSuccess, isPending } =
-    api.task.create.useMutation();
-
-    const getTask = api.task.read.useMutation()
+  const getTask = api.task.read.useMutation();
+  const deleteTask = api.task.delete.useMutation();
 
   const router = useRouter();
 
@@ -23,7 +23,7 @@ function page() {
     return router.push("/signin");
   }
 
-  async function handleSubmit(){
+  async function handleSubmit() {
     // await mutate({
     //   title: "xyz",
     //   userId: session.data?.user.id as string,
@@ -31,11 +31,21 @@ function page() {
     //   completed: true,
     //   priority: "HIGH"
     // })
-
-    const res = getTask.mutate({
-      userId: session.data?.user.id as string,
-    })
   }
+
+  useEffect(() => {
+    function getData() {
+      getTask.mutate({
+        userId: session.data?.user.id!,
+      });
+      console.log(getTask.data?.result[0]);
+    }
+
+    if (fetch) {
+      getData();
+      setFetch(false);
+    }
+  }, [fetch]);
 
   return (
     // <div>
@@ -45,11 +55,13 @@ function page() {
     //   })}>Signout</button>
     // </div>
     <>
-      <Dialog defaultOpen={false} open={isCreate}/>
+      {isCreate && <TaskForm isopen={setIsCreate} setFetch={setFetch} />}
       <div className="grid h-screen w-screen justify-items-center bg-gray-300">
         <div className="m-10 grid w-9/12 grid-rows-10 bg-gray-100 p-10">
           <div className="flex justify-between">
-            <button onClick={handleSubmit}>Create Task</button>
+            <Button onClick={() => setIsCreate((isCreate) => !isCreate)}>
+              Create Task
+            </Button>
             <Button
               onClick={() =>
                 signOut({
@@ -62,6 +74,42 @@ function page() {
           </div>
           <div className="row-span-9">
             <h2 className="text-2xl font-bold underline">Tasks</h2>
+            <div className="my-8 grid grid-cols-3 gap-6 bg-purple-100">
+              {getTask.data?.result?.map((task) => {
+                const deadline = task.deadline?.toDateString();
+
+                return (
+                  <div
+                    key={task.id}
+                    className="m-5 rounded-md bg-green-200 p-4"
+                  >
+                    <h2 className="text-lg font-bold">Title: {task.title}</h2>
+                    <div className="my-2">
+                      <p>Description: {task.description}</p>
+                      <p>Priority: {task.priority}</p>
+                      <p>Status: {task.status}</p>
+                      <p>Deadline: {deadline}</p>
+                      <p>
+                        <span className="underline">Teammate</span>:{" "}
+                        {task.users.map((user) => {
+                          return <h3 className="ml-2 mt-1">{user.email}</h3>;
+                        })}
+                      </p>
+
+                      <button
+                        className="mt-4 w-24 border-spacing-3 rounded-md border-2 border-red-600 px-3 py-1 text-red-600"
+                        onClick={() => {
+                          deleteTask.mutate(task.id);
+                          setFetch(true);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

@@ -48,7 +48,7 @@ function SigninForm() {
      });
      console.log(res)
      if(!res?.ok){
-      toast.error("Login Failed!", {
+      toast.error(res?.error, {
         position: "top-center",
       });
      }else{
