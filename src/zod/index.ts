@@ -28,6 +28,33 @@ export const zodTaskCreate = z.object({
     teamUserId: z.string().optional()
 })
 
+export const zodTaskUpdate = z.object({
+    id: z.string().min(1, 'Task id is required to update the task'),
+    title: z.string().trim().min(1, 'Title is required and cannot be empty').optional(),
+    description: z.string().optional().nullable(),
+    deadline: z.coerce.date().optional().nullable(),
+    priority: z
+        .string()
+        .optional()
+        .nullable()
+        .transform((val) => val?.toUpperCase())
+        .refine((val) => ['HIGH', 'MEDIUM', 'LOW'].includes(val ?? ''), {
+            message: 'Priority must be "High", "Medium", or "Low"',
+        }),
+    status: z
+        .string()
+        .optional()
+        .transform((val) => val?.toUpperCase())
+        .refine((val) => ['TO DO', 'IN PROGRESS', 'DONE'].includes(val ?? ''), {
+            message: 'Status must be "To Do", "In Progress", or "Done"',
+        }),
+    completed: z.boolean().optional(),
+    userId: z.string().optional(),
+    teamUserId: z.string().optional()
+})
+
 export type typeSignup = z.infer<typeof zodSignup>
 
 export type typeTaskCreate = z.infer<typeof zodTaskCreate >
+
+export type typeTaskUpdate = z.infer<typeof zodTaskUpdate>

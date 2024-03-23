@@ -115,7 +115,7 @@ function SigninForm() {
         </form>
         <h3 className="my-4 text-center text-lg">
           New here?
-          <Link className="ml-2" href="http://localhost:3000/signup">
+          <Link className="ml-2" href={"/signup"}>
             Sign up
           </Link>
         </h3>

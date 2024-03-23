@@ -3,15 +3,19 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Dialog } from "~/components/ui/dialog";
 import { api } from "~/trpc/react";
 import TaskForm from "../_components/taskCreateForm";
+
+import { typeTaskUpdate } from "~/zod";
+import TaskUpdateForm from "../_components/taskUpdateForm";
+import { ToastContainer, toast } from "react-toastify";
 
 function page() {
   const session = useSession();
   console.log(session);
 
   const [isCreate, setIsCreate] = useState(false);
+  const [isUpdate, setIsUpdate] = useState<{open:boolean,task:typeTaskUpdate}>();
   const [fetch, setFetch] = useState(true);
 
   const getTask = api.task.read.useMutation();
@@ -23,17 +27,11 @@ function page() {
     return router.push("/signin");
   }
 
-  async function handleSubmit() {
-    // await mutate({
-    //   title: "xyz",
-    //   userId: session.data?.user.id as string,
-    //   status: "DONE",
-    //   completed: true,
-    //   priority: "HIGH"
-    // })
-  }
-
   useEffect(() => {
+    getTask.isError &&
+        toast.error(getTask.error.message, {
+          position: "top-center",
+        });
     function getData() {
       getTask.mutate({
         userId: session.data?.user.id!,
@@ -48,14 +46,10 @@ function page() {
   }, [fetch]);
 
   return (
-    // <div>
-    //   <p>Dashboard</p>
-    //   <button onClick={() => signOut({
-    //     callbackUrl:"/"
-    //   })}>Signout</button>
-    // </div>
-    <>
+   
+    <> <ToastContainer />
       {isCreate && <TaskForm isopen={setIsCreate} setFetch={setFetch} />}
+      {isUpdate?.open && <TaskUpdateForm Taskdata={isUpdate.task} setTaskData = {setIsUpdate} setFetch={setFetch} />}
       <div className="grid h-screen w-screen justify-items-center bg-gray-300">
         <div className="m-10 grid w-9/12 grid-rows-10 bg-gray-100 p-10">
           <div className="flex justify-between">
@@ -95,6 +89,28 @@ function page() {
                           return <h3 className="ml-2 mt-1">{user.email}</h3>;
                         })}
                       </p>
+                      <button
+                        className="mt-4 mr-2 w-24 border-spacing-3 rounded-md border-2 border-gray-800 px-3 py-1 text-gray-800"
+                        onClick={() => {
+                          
+                          setIsUpdate({
+                            open: true,
+                            task : {
+                              id: task.id,
+                              title: task.title,
+                              description: task.description,
+                              deadline: task.deadline,
+                              priority: task.priority!,
+                              status: task.status,
+                              completed: task.completed,
+                              userId: session.data?.user.id,
+                              teamUserId: session.data?.user.id != task.users[0]?.id? task.users[0]?.id : task.users[1]?.id
+                            }
+                          })
+                        }}
+                      >
+                        Update
+                      </button>
 
                       <button
                         className="mt-4 w-24 border-spacing-3 rounded-md border-2 border-red-600 px-3 py-1 text-red-600"

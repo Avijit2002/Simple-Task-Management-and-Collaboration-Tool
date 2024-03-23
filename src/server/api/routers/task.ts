@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { zodTaskCreate } from "~/zod";
+import { zodTaskCreate, zodTaskUpdate } from "~/zod";
 
 export const taskRouter = createTRPCRouter({
     create: publicProcedure
@@ -117,53 +117,60 @@ export const taskRouter = createTRPCRouter({
 
 
     update: publicProcedure
-        .input(z.object({
-            id: z.string().min(1, 'Task id is required to update the task'),
-            title: z.string().trim().min(1, 'Title is required and cannot be empty').optional(),
-            description: z.string().optional().nullable(),
-            deadline: z.date().optional().nullable(),
-            priority: z
-                .string()
-                .optional()
-                .nullable()
-                .transform((val) => val?.toUpperCase())
-                .refine((val) => ['HIGH', 'MEDIUM', 'LOW'].includes(val ?? ''), {
-                    message: 'Priority must be "High", "Medium", or "Low"',
-                }),
-            status: z
-                .string()
-                .optional()
-                .transform((val) => val?.toUpperCase())
-                .refine((val) => ['TO DO', 'IN PROGRESS', 'DONE'].includes(val ?? ''), {
-                    message: 'Status must be "To Do", "In Progress", or "Done"',
-                }),
-            completed: z.boolean().optional(),
-            userId: z.string().optional(),
-        }))
+        .input(zodTaskUpdate)
         .mutation(async ({ ctx, input }) => {
 
-            if (input.userId) {
+            let createdTask
+
+            if(input.teamUserId){
                 const user = await ctx.db.user.findUnique({
                     where: {
-                        id: input.userId
+                        id: input.teamUserId
+                    }
+                })
+                //console.log(user)
+    
+                if (!user?.id) {
+                    throw new TRPCError({
+                        code: 'FORBIDDEN',
+                        message: 'Teammate User not found.',
+                    });
+                }
+
+
+                createdTask = await ctx.db.task.update({
+                    where: {
+                        id:input.id
+                    },
+                    data: {
+                        title: input.title,
+                        description: input.description,
+                        deadline: input.deadline,
+                        priority: input.priority,
+                        status: input.status,
+                        completed: input.completed,
+                        users: {
+                            connect: [
+                                {
+                                    id: input.teamUserId
+                                }
+                            ]
+                        }
                     }
                 })
 
-                if (user?.id) {
-                    throw new TRPCError({
-                        code: 'FORBIDDEN',
-                        message: 'User not found.',
-                    });
-                }
+            }else{
+                const { userId, teamUserId, ...data} = input
+                createdTask = await ctx.db.task.update({
+                    where: {
+                        id: input.id
+                    },
+                    data
+                })
+
+
             }
 
-
-            const createdTask = await ctx.db.task.update({
-                where: {
-                    id: input.id
-                },
-                data: input
-            })
 
             return {
                 status: 201,
