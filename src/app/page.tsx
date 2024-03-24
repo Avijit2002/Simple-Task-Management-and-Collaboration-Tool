@@ -31,25 +31,3 @@ export default function Home() {
     </main>
   );
 }
-
-// async function CrudShowcase() {
-//   const latestPost = await api.post.read();
-
-//   return (
-//     <div className="w-full max-w-xs">
-//       <CreatePost />
-//       <h2>Your posts:</h2>
-//       {latestPost ? (
-//         latestPost.map(x=>{
-//           return(
-//             <div>
-//               <p key={x.id} className="truncate"> {x.name}</p>
-//             </div>
-//           )
-//         })
-//       ) : (
-//         <p>You have no posts yet.</p>
-//       )}
-//     </div>
-//   );
-// }

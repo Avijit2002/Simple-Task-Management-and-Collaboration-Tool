@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { zodTaskCreate, typeTaskCreate, typeTaskUpdate, zodTaskUpdate } from "~/zod";
+import {typeTaskUpdate, zodTaskUpdate } from "~/zod";
 
 import { Button } from "../../components/ui/button";
 import {
@@ -34,8 +34,6 @@ function TaskUpdateForm({
 } | undefined>>;
   setFetch: Dispatch<SetStateAction<boolean>>;
 }) {
-  const session = useSession();
-  const router = useRouter();
 
   const [teamuserid, setTeamuserid] = useState(Taskdata.teamUserId);
 
