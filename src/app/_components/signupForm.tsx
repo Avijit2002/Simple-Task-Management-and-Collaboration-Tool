@@ -37,7 +37,7 @@ function SignForm() {
     api.user.signup.useMutation();
 
   useEffect(() => {
-    async function triggerNotification() {
+    function triggerNotification() {
       isError &&
         toast.error(error.message, {
           position: "top-center",
@@ -46,15 +46,6 @@ function SignForm() {
         toast.success(data.message, {
           position: "top-center",
         });
-
-        // if(isSuccess){
-        //   const res = await signIn('credentials',{
-        //     email: data.email,
-        //     password: values.password,
-        //     redirect:false
-        //  });
-        //  console.log(res)
-        // }
     }
     triggerNotification();
   }, [isError, isSuccess]);

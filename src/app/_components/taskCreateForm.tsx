@@ -17,13 +17,9 @@ import {
   FormLabel,
   FormMessage,
 } from "../../components/ui/form";
-import { Input } from "../../components/ui/input";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Select } from "~/components/ui/select";
-import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 
 function TaskForm({
@@ -34,14 +30,13 @@ function TaskForm({
   setFetch: Dispatch<SetStateAction<boolean>>;
 }) {
   const session = useSession();
-  const router = useRouter();
 
   const [teamuserid, setTeamuserid] = useState("");
 
   const { mutate, data, error, isError, isSuccess, isPending } =
     api.task.create.useMutation();
 
-    const searchedUser = api.user.searchuser.useMutation()
+  const searchedUser = api.user.searchuser.useMutation();
 
   const form = useForm<typeTaskCreate>({
     resolver: zodResolver(zodTaskCreate),
@@ -78,14 +73,14 @@ function TaskForm({
   }, [isSuccess, isError]);
   // 2. Define a submit handler.
   async function onSubmit(values: typeTaskCreate) {
-    values.teamUserId=teamuserid
+    values.teamUserId = teamuserid;
     console.log(values);
     mutate(values);
   }
-  
-  function handleChange(e: any) {
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setTeamuserid(e.target.value);
-    searchedUser.mutate(teamuserid)
+    searchedUser.mutate(teamuserid);
   }
 
   return (
@@ -198,10 +193,13 @@ function TaskForm({
                 </FormControl>
                 <div>
                   <ul>
-                    {searchedUser.data?.result &&
-                      searchedUser.data?.result.map((x) => {
-                        return <li key={x.id} onClick={()=>setTeamuserid(x.id)}>{x.email}</li>;
-                      })}
+                    {searchedUser.data?.result.map((x) => {
+                      return (
+                        <li key={x.id} onClick={() => setTeamuserid(x.id)}>
+                          {x.email}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 <FormMessage />

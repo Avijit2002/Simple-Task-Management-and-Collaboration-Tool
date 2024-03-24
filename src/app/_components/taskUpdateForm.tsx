@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import {typeTaskUpdate, zodTaskUpdate } from "~/zod";
+import { typeTaskUpdate, zodTaskUpdate } from "~/zod";
 
 import { Button } from "../../components/ui/button";
 import {
@@ -28,19 +28,23 @@ function TaskUpdateForm({
   setFetch,
 }: {
   Taskdata: typeTaskUpdate;
-  setTaskData : Dispatch<SetStateAction<{
-    open: boolean;
-    task: typeTaskUpdate;
-} | undefined>>;
+  setTaskData: Dispatch<
+    SetStateAction<
+      | {
+          open: boolean;
+          task: typeTaskUpdate;
+        }
+      | undefined
+    >
+  >;
   setFetch: Dispatch<SetStateAction<boolean>>;
 }) {
-
   const [teamuserid, setTeamuserid] = useState(Taskdata.teamUserId);
 
   const { mutate, data, error, isError, isSuccess, isPending } =
     api.task.update.useMutation();
 
-    const searchedUser = api.user.searchuser.useMutation()
+  const searchedUser = api.user.searchuser.useMutation();
 
   const form = useForm<typeTaskUpdate>({
     resolver: zodResolver(zodTaskUpdate),
@@ -57,9 +61,9 @@ function TaskUpdateForm({
         setTimeout(() => {
           setTaskData({
             open: false,
-            task:{
-                id:""
-            }
+            task: {
+              id: "",
+            },
           });
         }, 2000);
       }
@@ -73,14 +77,14 @@ function TaskUpdateForm({
   }, [isSuccess, isError]);
   // 2. Define a submit handler.
   async function onSubmit(values: typeTaskUpdate) {
-    values.teamUserId=teamuserid
+    values.teamUserId = teamuserid;
     console.log(values);
     mutate(values);
   }
-  
-  function handleChange(e: any) {
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setTeamuserid(e.target.value);
-    searchedUser.mutate(teamuserid!)
+    searchedUser.mutate(teamuserid!);
   }
 
   return (
@@ -193,10 +197,13 @@ function TaskUpdateForm({
                 </FormControl>
                 <div>
                   <ul>
-                    {searchedUser.data?.result &&
-                      searchedUser.data?.result.map((x) => {
-                        return <li key={x.id} onClick={()=>setTeamuserid(x.id)}>{x.email}</li>;
-                      })}
+                    {searchedUser.data?.result.map((x) => {
+                      return (
+                        <li key={x.id} onClick={() => setTeamuserid(x.id)}>
+                          {x.email}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 <FormMessage />
@@ -208,12 +215,14 @@ function TaskUpdateForm({
           </Button>
           <button
             className="ml-8 w-24 border-spacing-3 rounded-md border-2 border-gray-800 px-3 py-1"
-            onClick={() =>  setTaskData({
+            onClick={() =>
+              setTaskData({
                 open: false,
-                task:{
-                    id:""
-                }
-              })}
+                task: {
+                  id: "",
+                },
+              })
+            }
           >
             Cancel
           </button>
@@ -224,7 +233,5 @@ function TaskUpdateForm({
     </div>
   );
 }
-
-
 
 export default TaskUpdateForm;
