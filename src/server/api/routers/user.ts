@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { zodSignup } from "~/zod";
 
 
-import { hash } from "argon2";
+import bcrypt from "bcrypt";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
@@ -31,7 +31,7 @@ export const userRouter = createTRPCRouter({
                     });
                 }
 
-                const hashedPassword = await hash(password);
+                const hashedPassword = await bcrypt.hash(password,10);
 
                 const result = await ctx.db.user.create({
                     data: { email, password: hashedPassword },

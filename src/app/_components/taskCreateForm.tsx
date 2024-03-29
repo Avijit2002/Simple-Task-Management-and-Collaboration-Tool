@@ -99,7 +99,7 @@ function TaskForm({
                   <h2 className="text-xl">Title</h2>
                 </FormLabel>
                 <FormControl>
-                  <input type="text" {...form.register("title")} />
+                  <input className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" type="text" {...form.register("title")} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -114,7 +114,7 @@ function TaskForm({
                   <h2>Description (Optional)</h2>
                 </FormLabel>
                 <FormControl>
-                  <textarea {...form.register("description")} />
+                  <textarea className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {...form.register("description")} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

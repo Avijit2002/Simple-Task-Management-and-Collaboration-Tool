@@ -12,8 +12,7 @@ import { db } from "~/server/db";
 
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from '@prisma/client'
-import { verify } from 'argon2';
-import { User } from 'next-auth';
+import bcrypt from "bcrypt"
 const prisma = new PrismaClient()
 
 /**
@@ -120,7 +119,7 @@ export const authOptions: NextAuthOptions = {
           return null
         }
         //const user = { id: "1", name: "J Smith", email: "jsmith@example.com" }
-        const isVerified = await verify(result?.password, credentials.password)
+        const isVerified = await bcrypt.compare(credentials.password,result?.password)
 
         //console.log(isVerified)
 

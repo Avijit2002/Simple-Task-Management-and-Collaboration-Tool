@@ -103,7 +103,11 @@ function TaskUpdateForm({
                   <h2 className="text-xl">Title</h2>
                 </FormLabel>
                 <FormControl>
-                  <input type="text" {...form.register("title")} />
+                  <input
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                    type="text"
+                    {...form.register("title")}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -118,7 +122,10 @@ function TaskUpdateForm({
                   <h2>Description (Optional)</h2>
                 </FormLabel>
                 <FormControl>
-                  <textarea {...form.register("description")} />
+                  <textarea
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                    {...form.register("description")}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
